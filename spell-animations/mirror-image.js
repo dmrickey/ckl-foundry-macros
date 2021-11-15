@@ -1,3 +1,5 @@
+// requires JB2A and Sequencer
+
 // generic defaults
 // this is what will happen if you just run the macro yourself
 // uses selected token as caster, and then casts on targets (unless there's no target then selected is also assumed the target)
