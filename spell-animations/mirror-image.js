@@ -111,7 +111,7 @@ if (isOn) {
                         if (effect.data.name !== name) {
                             registerHook();
                             return;
-                        } console.log(effect)
+                        }
                         new Sequence().effect()
                             .file(spellEndAnimation)
                             .atLocation({ x: casterToken.center.x + effect.sprite.x, y: casterToken.center.y + effect.sprite.y })
