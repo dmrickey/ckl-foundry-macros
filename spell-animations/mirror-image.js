@@ -22,6 +22,7 @@ if (typeof args !== 'undefined') {
 }
 // this is if used in a Script Call in pf1 (either a buff or as a spell)
 else if (game.system.data.name === 'pf1') {
+    targetTokens = [casterToken];
     if (typeof item !== 'undefined' && typeof token !== 'undefined') {
         casterToken = token;
         if (item.type === 'buff') {
