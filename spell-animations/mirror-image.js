@@ -15,6 +15,7 @@ const spellEndAnimation = 'jb2a.impact.003.dark_purple';
 
 // this is an overwrite if being used by midi for dnd 5 (..I think, I don't use it)
 if (typeof args !== 'undefined') {
+    //NOTE: This needs to go into the effect's macro.execute property, rather than midi's 'On Item Use' field. The parameters @target and @token need to be passed in (In this order)
     casterToken = canvas.tokens.get(args[2]);
     isOn = args[0] !== "off";
     targetTokens = [canvas.tokens.get(args[1])];
