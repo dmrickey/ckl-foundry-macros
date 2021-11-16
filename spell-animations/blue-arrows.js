@@ -6,8 +6,10 @@ if (typeof token === 'undefined') return;
 
 let missiles = 3;
 if (typeof item !== 'undefined') {
-    // todo figure out where the info that "I hit single attack" is;
-    missiles = item.data.data?.formulaicAttacks?.count?.value || missiles;
+    missiles = (item.data.data?.formulaicAttacks?.count?.value || 2) + 1;
+}
+if (typeof data !== 'undefined') {
+    missiles = data.fullAttack ? missiles : 1;
 }
 
 const animation = (distance) => {
