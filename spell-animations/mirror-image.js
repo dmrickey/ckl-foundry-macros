@@ -83,6 +83,31 @@ if (isOn) {
     if (targetTokens.length) {
         seq.thenDo(() => {
             targetTokens.forEach(targetToken => {
+                const textName = `mirror-image-count-${targetToken.id}`;
+                const addText = (qty) => {
+                    new Sequence().effect()
+                        .attachTo(targetToken)
+                        .name(`mirror-image-count-${targetToken.id}`)
+                        .offset({ x: -(targetToken.w / 2 - 10), y: -(targetToken.h / 2 - 10) })
+                        .text(`1d${qty + 1}`, {
+                            "fill": "#fafafa",
+                            "fillGradientStops": [
+                                0
+                            ],
+                            "strokeThickness": 3
+                        })
+                        .zIndex(100)
+                        .persist()
+                        .waitUntilFinished()
+                        .thenDo(() => {
+                            if (qty > 1) {
+                                addText(qty - 1);
+                            }
+                        })
+                        .play();
+                };
+                addText(numberOfImages);
+
                 positions.forEach((position, index) => {
                     const name = `mirror-image-${index}-${targetToken.id}`;
                     new Sequence()
@@ -115,9 +140,17 @@ if (isOn) {
                         }
                         new Sequence().effect()
                             .file(spellEndAnimation)
+                            .zIndex(1000)
                             .atLocation({ x: casterToken.center.x + effect.sprite.x, y: casterToken.center.y + effect.sprite.y })
                             .scaleToObject(2)
                             .fadeIn(100)
+                            .thenDo(() => {
+                                Sequencer.EffectManager.endEffects({
+                                    name: textName,
+                                    object: targetToken.id
+                                });
+                            })
+                            .waitUntilFinished()
                             .play()
                     };
                     const registerHook = () => Hooks.once('endedSequencerEffect', playBoom);
