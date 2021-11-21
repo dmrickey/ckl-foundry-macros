@@ -33,9 +33,10 @@ else if (game.system.data.name === 'pf1') {
         if (item.type === 'buff') {
             numberOfImages += Math.floor(item.data.data.level / 3);
         }
-        if (item.type === 'spell') {
+        else if (item.type === 'spell') {
             numberOfImages += Math.floor(item.casterLevel / 3);
         }
+        numberOfImages = Math.min(8, numberOfImages);
     }
 }
 
