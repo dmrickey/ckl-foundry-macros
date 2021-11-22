@@ -1,15 +1,14 @@
 // requires JB2A patreon and Sequencer
-//   expects the attack is set up using Formulaic Attack
 
 // fail early if no caster
-if (typeof token === 'undefined') return;
+if (typeof token === 'undefined' || !token) return;
 
 let missiles = 3;
-if (typeof item !== 'undefined') {
-    missiles = (item.data.data?.formulaicAttacks?.count?.value || 2) + 1;
+if (typeof attacks !== 'undefined') {
+    missiles = attacks.length;
 }
-if (typeof data !== 'undefined') {
-    missiles = data.fullAttack ? missiles : 1;
+if (typeof data !== 'undefined' && !data.fullAttack) {
+    missiles = 1;
 }
 
 const targetTokens = [...game.user.targets];
