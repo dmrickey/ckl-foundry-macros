@@ -1,9 +1,6 @@
-// requires JB2A and Sequencer
+// requires JB2A patreon and Sequencer
 
-// generic defaults
-// this is what will happen if you just run the macro yourself
-// uses selected token as caster, and then casts on targets (unless there's no target then selected is also assumed the target)
-let casterToken = canvas.tokens.controlled[0];
+let casterToken = token;
 let isOn = true;
 let numberOfImages = 5;
 const targetTokens = game.user.targets.size
@@ -88,7 +85,7 @@ if (isOn) {
         seq.thenDo(() => {
             targetTokens.forEach(targetToken => {
                 const textName = `mirror-image-count-${targetToken.id}`;
-                const addText = (qty) => {
+                const addText = async (qty) => {
                     Sequencer.EffectManager.endEffects({
                         name: textName,
                         object: targetToken
@@ -96,6 +93,9 @@ if (isOn) {
                     if (!qty) {
                         qty = Sequencer.EffectManager.getEffects({ object: targetToken, origin }).length;
                         if (qty <= 0) {
+                            if (item.type === 'buff') {
+                                await item.update({ 'data.active': false });
+                            }
                             return;
                         }
                     }
