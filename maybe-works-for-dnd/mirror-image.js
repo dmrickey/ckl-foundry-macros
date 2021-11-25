@@ -5,43 +5,40 @@
 // uses selected token as caster, and then casts on targets (unless there's no target then selected is also assumed the target)
 let casterToken = canvas.tokens.controlled[0];
 let isOn = true;
+let targetTokens = game.user.targets.size ? [...game.user.targets] : [casterToken];
 let numberOfImages = 5;
-const targetTokens = game.user.targets.size
-    ? [...game.user.targets]
-    : casterToken
-        ? [casterToken]
-        : [];
 
 // swap these out to change the animations
 const illusionAnimation = 'jb2a.extras.tmfx.runes.circle.simple.illusion';
 const spellStartAnimation = 'jb2a.impact.004.dark_purple';
 const spellEndAnimation = 'jb2a.impact.003.dark_purple';
 
-const origin = 'mirror-image';
-
-if (typeof item !== 'undefined' && typeof token !== 'undefined') {
-    casterToken = token;
-    if (item.type === 'buff') {
-        isOn = state;
-    }
-
-    numberOfImages = isOn ? RollPF.safeTotal("1d4") : 4;
-    if (item.type === 'buff') {
-        numberOfImages += Math.floor(item.data.data.level / 3);
-    }
-    else if (item.type === 'spell') {
-        numberOfImages += Math.floor(item.casterLevel / 3);
-    }
-    numberOfImages = Math.min(8, numberOfImages);
+// this is an overwrite if being used by midi for dnd 5 (..I think, I don't use it)
+if (typeof args !== 'undefined') {
+    //NOTE: This needs to go into the effect's macro.execute property, rather than midi's 'On Item Use' field. The parameters @target and @token need to be passed in (In this order)
+    casterToken = canvas.tokens.get(args[2]);
+    isOn = args[0] !== "off";
+    targetTokens = [canvas.tokens.get(args[1])];
 }
+// this is if used in a Script Call in pf1 (either a buff or as a spell)
+else if (game.system.data.name === 'pf1') {
+    targetTokens = [casterToken];
+    if (typeof item !== 'undefined' && typeof token !== 'undefined') {
+        casterToken = token;
+        if (item.type === 'buff') {
+            isOn = state;
+        }
 
-// turn off all possible images to start with in case the spell is recast
-targetTokens.forEach(targetToken => {
-    Sequencer.EffectManager.endEffects({
-        origin,
-        object: targetToken,
-    });
-});
+        numberOfImages = isOn ? RollPF.safeTotal("1d4") : 4;
+        if (item.type === 'buff') {
+            numberOfImages += Math.floor(item.data.data.level / 3);
+        }
+        else if (item.type === 'spell') {
+            numberOfImages += Math.floor(item.casterLevel / 3);
+        }
+        numberOfImages = Math.min(8, numberOfImages);
+    }
+}
 
 if (isOn) {
     const positions = [];
@@ -89,31 +86,25 @@ if (isOn) {
             targetTokens.forEach(targetToken => {
                 const textName = `mirror-image-count-${targetToken.id}`;
                 const addText = (qty) => {
-                    Sequencer.EffectManager.endEffects({
-                        name: textName,
-                        object: targetToken
-                    })
-                    if (!qty) {
-                        qty = Sequencer.EffectManager.getEffects({ object: targetToken, origin }).length;
-                        if (qty <= 0) {
-                            return;
-                        }
-                    }
-
                     new Sequence().effect()
                         .attachTo(targetToken)
                         .name(textName)
-                        .origin(origin)
                         .offset({ x: -(targetToken.w / 2 - 10), y: -(targetToken.h / 2 - 10) })
                         .text(`1d${qty + 1}`, {
                             "fill": "#fafafa",
-                            "fillGradientStops": [0],
+                            "fillGradientStops": [
+                                0
+                            ],
                             "strokeThickness": 3
                         })
                         .zIndex(100)
                         .persist()
                         .waitUntilFinished()
-                        .thenDo(addText)
+                        .thenDo(() => {
+                            if (qty > 1) {
+                                addText(qty - 1);
+                            }
+                        })
                         .play();
                 };
                 addText(numberOfImages);
@@ -126,7 +117,6 @@ if (isOn) {
                         .from(targetToken)
                         .fadeIn(1000)
                         .fadeOut(400)
-                        .origin(origin)
                         .attachTo(targetToken)
                         .loopProperty("sprite", "position.x", {
                             values: index % 2 ? position.x : position.x.slice().reverse(),
@@ -172,4 +162,14 @@ if (isOn) {
     }
 
     seq.play()
+}
+else {
+    targetTokens.forEach(targetToken => {
+        for (let i = 0; i < numberOfImages; i++) {
+            Sequencer.EffectManager.endEffects({
+                name: `mirror-image-${i}-${targetToken.id}`,
+                object: targetToken.id
+            });
+        }
+    });
 }
