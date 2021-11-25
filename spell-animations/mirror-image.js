@@ -88,7 +88,7 @@ if (isOn) {
                 const addText = (qty) => {
                     new Sequence().effect()
                         .attachTo(targetToken)
-                        .name(`mirror-image-count-${targetToken.id}`)
+                        .name(textName)
                         .offset({ x: -(targetToken.w / 2 - 10), y: -(targetToken.h / 2 - 10) })
                         .text(`1d${qty + 1}`, {
                             "fill": "#fafafa",
