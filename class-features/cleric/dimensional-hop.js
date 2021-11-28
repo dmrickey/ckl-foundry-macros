@@ -61,7 +61,6 @@ seq.animation()
 seq.animation()
     .on(token)
     .teleportTo(location, { relativeToCenter: true })
-    .snapToGrid()
     .waitUntilFinished();
 seq.animation()
     .on(token)
