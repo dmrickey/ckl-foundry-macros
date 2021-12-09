@@ -1,3 +1,5 @@
+// requires JB2A, Sequencer, and Warpgate
+
 if (!token) {
     return;
 }
