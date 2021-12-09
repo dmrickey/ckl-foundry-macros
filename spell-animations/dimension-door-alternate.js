@@ -17,6 +17,9 @@ if (typeof item !== 'undefined') {
 }
 
 const position = await warpgate.crosshairs.show(config);
+if (position.cancelled) {
+    return;
+}
 
 const portalScale = token.w / canvas.grid.size * .7;
 
