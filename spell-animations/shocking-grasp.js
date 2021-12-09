@@ -1,3 +1,4 @@
+// requires JB2A and Sequencer
 const target = [...game.user.targets][0];
 
 const seq = new Sequence();
@@ -6,7 +7,8 @@ if (token) {
     seq.effect()
         .file('jb2a.magic_signs.rune.evocation.intro.blue')
         .atLocation(token)
-        .scale(0.75)
+        .scaleToObject()
+        .scale(1.6)
         .opacity(0.5)
         .waitUntilFinished();
 
