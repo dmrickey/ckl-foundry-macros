@@ -104,13 +104,24 @@ if (target.cancelled) {
     return;
 }
 
-await new Sequence().effect()
+const seq = new Sequence();
+seq.effect()
+    .file('jb2a.magic_signs.rune.evocation.intro.red')
+    .atLocation(token)
+    .scaleToObject()
+    .scale(1.6)
+    .opacity(0.5)
+    .waitUntilFinished();
+seq.effect()
     .file('jb2a.burning_hands.01.orange')
     .atLocation(template)
+    .fadeIn(300)
     .rotate(-currentCrosshairsAngle)
     .size(gridSize * 3)
     .scale({ x: 1, y: 1.5 })
-    .anchor({ x: 0, y: 0.5 })
-    .play();
+    .anchor({ x: 0, y: 0.5 });
+
+
+await seq.play();
 
 await template.delete();
