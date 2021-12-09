@@ -16,7 +16,6 @@ if (!token) {
 }
 const source = token.center;
 
-
 const gridSize = canvas.grid.h;
 
 const square = {
@@ -108,8 +107,9 @@ if (target.cancelled) {
 await new Sequence().effect()
     .file('jb2a.burning_hands.01.orange')
     .atLocation(template)
-    .rotateTowards(target)
+    .rotate(-currentCrosshairsAngle)
     .size(gridSize * 3)
+    .scale({ x: 1, y: 1.5 })
     .anchor({ x: 0, y: 0.5 })
     .play();
 
