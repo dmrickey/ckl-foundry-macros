@@ -61,7 +61,7 @@ const targetConfig = {
     drawOutline: false,
 }
 
-const degtorad = (degrees) =>  degrees * Math.PI / 180;
+const degtorad = (degrees) => degrees * Math.PI / 180;
 let currentCrosshairsAngle = 0;
 const updateTemplateLocation = async (crosshairs) => {
     while (crosshairs.inFlight) {
@@ -113,9 +113,27 @@ const updateTemplateLocation = async (crosshairs) => {
             }
 
             template = await template.update(update);
-            const tokensInTemplate = (targetTemplate) => canvas.tokens.placeables.filter(o => canvas.grid.getHighlightLayer('Template.' + targetTemplate.id).geometry.containsPoint(o.center));
-            const tokensToTarget = tokensInTemplate(template);
-            game.user.updateTokenTargets(tokensToTarget.map(x => x.id));
+
+            const getCenterOfSquares = (t) => {
+                const x1 = t.x + gridSize / 2;
+                const y1 = t.y + gridSize / 2;
+                const tokenSquaresWidth = t.data.width;
+                const tokenSquaresHeight = t.data.height;
+                const centers = [];
+                for (let x = 0; x < tokenSquaresWidth; x++) {
+                    for (let y = 0; y < tokenSquaresHeight; y++) {
+                        centers.push({ id: t.id, center: { x: x1 + x * gridSize, y: y1 + y * gridSize } });
+                    }
+                }
+                return centers;
+            };
+            const centers = canvas.tokens.placeables
+                .map(t => t.actor.data.data.size <= 4
+                    ? { id: t.id, center: t.center }
+                    : getCenterOfSquares(t))
+                .flatMap(x => x);
+            const tokenIdsToTarget = centers.filter(o => canvas.grid.getHighlightLayer('Template.' + template.id).geometry.containsPoint(o.center)).map(x => x.id);
+            game.user.updateTokenTargets(tokenIdsToTarget);
         }
     }
 }
@@ -139,7 +157,7 @@ seq.effect()
     .waitUntilFinished();
 seq.effect()
     .file('jb2a.burning_hands.01.orange')
-    .atLocation(template)
+    .atLocation(template, { cacheLocation: true })
     .fadeIn(300)
     .rotate(-currentCrosshairsAngle)
     .size(gridSize * 3)
@@ -153,5 +171,5 @@ seq.effect()
     })
     .waitUntilFinished();
 
-await seq.play();
 await template.delete();
+await seq.play();
