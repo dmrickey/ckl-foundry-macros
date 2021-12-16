@@ -169,9 +169,9 @@ seq.effect()
     .waitUntilFinished();
 seq.effect()
     .file('jb2a.burning_hands.01.orange')
-    .atLocation(template, { cacheLocation: true })
+    .atLocation(square.allSpots[currentSpotIndex])
     .fadeIn(300)
-    .rotate(-template.direction, { cacheLocation: true })
+    .rotate(-square.allSpots[currentSpotIndex].direction)
     .size(gridSize * 3)
     .scale({
         x: 1,
