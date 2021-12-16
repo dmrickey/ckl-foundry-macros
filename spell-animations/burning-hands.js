@@ -1,7 +1,36 @@
 // requires warpgate, jb2a patreon, and sequencer
 
+const gridSize = canvas.grid.h;
+const sourceSquare = (center, widthSquares, heightSquares) => ({
+    get x() {
+        return this.left;
+    },
+    get y() {
+        return this.top;
+    },
+    center,
+    get top() {
+        return this.center.y - this.h / 2;
+    },
+    get bottom() {
+        return this.center.y + this.h / 2;
+    },
+    get left() {
+        return this.center.x - this.w / 2;
+    },
+    get right() {
+        return this.center.x + this.w / 2;
+    },
+    get h() {
+        return gridSize * heightSquares;
+    },
+    get w() {
+        return gridSize * widthSquares;
+    },
+});
+
 // cast from source token, if no source token, then select a square to originate the cone from.
-let source;
+let square;
 if (typeof token === 'undefined') {
     const sourceConfig = {
         drawIcon: true,
@@ -10,39 +39,16 @@ if (typeof token === 'undefined') {
         label: 'Cone Start',
     };
 
-    source = await warpgate.crosshairs.show(sourceConfig);
+    const source = await warpgate.crosshairs.show(sourceConfig);
     if (source.cancelled) {
         return;
     }
+    square = sourceSquare({ x: source.x, y: source.y }, 1 ,1);
 }
 else {
-    source = token.center;
+    const size = Math.max(token.actor.data.data.size - 3, 1);
+    square = sourceSquare(token.center, size, size);
 }
-
-const gridSize = canvas.grid.h;
-
-const square = {
-    x: source.x,
-    y: source.y,
-    get center() {
-        return {
-            x: this.x,
-            y: this.y
-        };
-    },
-    get top() {
-        return this.center.y - gridSize / 2;
-    },
-    get bottom() {
-        return this.center.y + gridSize / 2;
-    },
-    get left() {
-        return this.center.x - gridSize / 2;
-    },
-    get right() {
-        return this.center.x + gridSize / 2;
-    },
-};
 
 const templateData = {
     t: "cone",
@@ -51,7 +57,7 @@ const templateData = {
     fillColor: '#000000',
     angle: 90,
     x: square.center.x,
-    y: source.right || (square.center.x + gridSize / 2),
+    y: square.right || (square.center.x + gridSize / 2),
 }
 
 let template = (await canvas.scene.createEmbeddedDocuments('MeasuredTemplate', [templateData]))[0];
@@ -61,7 +67,6 @@ const targetConfig = {
     drawOutline: false,
 }
 
-const degtorad = (degrees) => degrees * Math.PI / 180;
 let currentCrosshairsAngle = 0;
 const updateTemplateLocation = async (crosshairs) => {
     while (crosshairs.inFlight) {
@@ -129,8 +134,8 @@ const updateTemplateLocation = async (crosshairs) => {
             };
             const centers = canvas.tokens.placeables
                 .map(t => t.actor.data.data.size <= 4
-                    ? { id: t.id, center: t.center }
-                    : getCenterOfSquares(t))
+                        ? { id: t.id, center: t.center }
+                        : getCenterOfSquares(t))
                 .flatMap(x => x);
             const tokenIdsToTarget = centers.filter(o => canvas.grid.getHighlightLayer('Template.' + template.id).geometry.containsPoint(o.center)).map(x => x.id);
             game.user.updateTokenTargets(tokenIdsToTarget);
@@ -150,9 +155,8 @@ if (rotateCrosshairs.cancelled) {
 const seq = new Sequence();
 seq.effect()
     .file('jb2a.magic_signs.rune.evocation.intro.red')
-    .atLocation(source)
-    .scaleToObject()
-    .scale(1.6)
+    .atLocation(square, { relativeToCenter: true })
+    .scaleToObject(1.6)
     .opacity(0.5)
     .waitUntilFinished();
 seq.effect()
