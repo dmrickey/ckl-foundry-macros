@@ -1,77 +1,62 @@
 // requires warpgate, jb2a patreon, and sequencer
 
 const gridSize = canvas.grid.h;
-const sourceSquare = (center, widthSquares, heightSquares) => ({
-    get x() {
-        return this.left;
-    },
-    get y() {
-        return this.top;
-    },
-    center,
-    get top() {
-        return this.center.y - this.h / 2;
-    },
-    get bottom() {
-        return this.center.y + this.h / 2;
-    },
-    get left() {
-        return this.center.x - this.w / 2;
-    },
-    get right() {
-        return this.center.x + this.w / 2;
-    },
-    get h() {
-        return gridSize * this.heightSquares;
-    },
-    get w() {
-        return gridSize * this.widthSquares;
-    },
-    heightSquares,
-    widthSquares,
-    get rightSpots() {
-        return [...new Array(heightSquares)].map((_, i) => ({
-            direction: 0,
-            x: this.right,
-            y: this.top + gridSize / 2 + gridSize * i,
-        }));
-    },
-    get bottomSpots() {
-        return [...new Array(widthSquares)].map((_, i) => ({
-            direction: 90,
-            x: this.right - gridSize / 2 - gridSize * i,
-            y: this.bottom,
-        }));
-    },
-    get leftSpots() {
-        return [...new Array(heightSquares)].map((_, i) => ({
-            direction: 180,
-            x: this.left,
-            y: this.bottom - gridSize / 2 - gridSize * i,
-        }));
-    },
-    get topSpots() {
-        return [...new Array(widthSquares)].map((_, i) => ({
-            direction: 270,
-            x: this.left + gridSize / 2 + gridSize * i,
-            y: this.top,
-        }));
-    },
-    get allSpots() {
+const sourceSquare = (center, widthSquares, heightSquares) => {
+    const h = gridSize * heightSquares;
+    const w = gridSize * widthSquares;
 
-        return [
-            ...this.rightSpots.slice(Math.floor(this.rightSpots.length / 2)),
-            { direction: 45, x: this.right, y: this.bottom },
-            ...this.bottomSpots,
-            { direction: 135, x: this.left, y: this.bottom },
-            ...this.leftSpots,
-            { direction: 225, x: this.left, y: this.top },
-            ...this.topSpots,
-            { direction: 315, x: this.right, y: this.top },
-            ...this.rightSpots.slice(0, Math.floor(this.rightSpots.length / 2)),
-        ];
-    },
-});
+    const bottom = center.y + h / 2;
+    const left = center.x - w / 2;
+    const top = center.y - h / 2;
+    const right = center.x + w / 2;
+
+    const rightSpots = [...new Array(heightSquares)].map((_, i) => ({
+        direction: 0,
+        x: right,
+        y: top + gridSize / 2 + gridSize * i,
+    }));
+    const bottomSpots = [...new Array(widthSquares)].map((_, i) => ({
+        direction: 90,
+        x: right - gridSize / 2 - gridSize * i,
+        y: bottom,
+    }));
+    const leftSpots = [...new Array(heightSquares)].map((_, i) => ({
+        direction: 180,
+        x: left,
+        y: bottom - gridSize / 2 - gridSize * i,
+    }));
+    const topSpots = [...new Array(widthSquares)].map((_, i) => ({
+        direction: 270,
+        x: left + gridSize / 2 + gridSize * i,
+        y: top,
+    }));
+    const allSpots = [
+        ...rightSpots.slice(Math.floor(rightSpots.length / 2)),
+        { direction: 45, x: right, y: bottom },
+        ...bottomSpots,
+        { direction: 135, x: left, y: bottom },
+        ...leftSpots,
+        { direction: 225, x: left, y: top },
+        ...topSpots,
+        { direction: 315, x: right, y: top },
+        ...rightSpots.slice(0, Math.floor(rightSpots.length / 2)),
+    ];
+
+    return {
+        x: left,
+        y: top,
+        center,
+        top,
+        bottom,
+        left,
+        right,
+        h,
+        w,
+        heightSquares,
+        widthSquares,
+        allSpots,
+    };
+};
 
 // cast from source token, if no source token, then select a square to originate the cone from.
 let square;
@@ -99,7 +84,7 @@ const templateData = {
     distance: 15,
     fillColor: '#000000',
     angle: 90,
-    ...square.rightSpots[0],
+    ...square.allSpots[0],
 }
 
 let template = (await canvas.scene.createEmbeddedDocuments('MeasuredTemplate', [templateData]))[0];
