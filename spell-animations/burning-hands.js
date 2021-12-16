@@ -56,8 +56,8 @@ const templateData = {
     direction: 0,
     fillColor: '#000000',
     angle: 90,
-    x: square.center.x,
-    y: square.right || (square.center.x + gridSize / 2),
+    x: square.right,
+    y: square.center.y,
 }
 
 let template = (await canvas.scene.createEmbeddedDocuments('MeasuredTemplate', [templateData]))[0];
