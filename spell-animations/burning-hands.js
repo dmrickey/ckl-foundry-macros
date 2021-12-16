@@ -116,7 +116,12 @@ const updateTemplateLocation = async (crosshairs) => {
 
         const totalSpots = 4 + 2 * square.heightSquares + 2 * square.widthSquares;
         const radToNormalizedAngle = (rad) => {
-            const angle = (rad * 180 / Math.PI) % 360;
+            let angle = (rad * 180 / Math.PI) % 360;
+
+            // offset the angle for even-sided tokens, because it's centered in the grid it's just wonky without the offset
+            if (square.heightSquares % 2 === 0 && square.widthSquares % 2 === 0) {
+                angle -= (360 / totalSpots) / 2;
+            }
             const normalizedAngle = Math.round(angle / (360 / totalSpots)) * (360 / totalSpots);
             return normalizedAngle < 0
                 ? normalizedAngle + 360
@@ -125,7 +130,7 @@ const updateTemplateLocation = async (crosshairs) => {
 
         const ray = new Ray(square.center, crosshairs);
         const angle = radToNormalizedAngle(ray.angle);
-        const spotIndex = angle / 360 * totalSpots;
+        const spotIndex = Math.ceil(angle / 360 * totalSpots);
 
         if (spotIndex === currentSpotIndex) {
             continue;
