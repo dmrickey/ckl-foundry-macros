@@ -22,10 +22,54 @@ const sourceSquare = (center, widthSquares, heightSquares) => ({
         return this.center.x + this.w / 2;
     },
     get h() {
-        return gridSize * heightSquares;
+        return gridSize * this.heightSquares;
     },
     get w() {
-        return gridSize * widthSquares;
+        return gridSize * this.widthSquares;
+    },
+    heightSquares,
+    widthSquares,
+    get rightSpots() {
+        return [...new Array(heightSquares)].map((_, i) => ({
+            direction: 0,
+            x: this.right,
+            y: this.top + gridSize / 2 + gridSize * i,
+        }));
+    },
+    get bottomSpots() {
+        return [...new Array(widthSquares)].map((_, i) => ({
+            direction: 90,
+            x: this.right - gridSize / 2 - gridSize * i,
+            y: this.bottom,
+        }));
+    },
+    get leftSpots() {
+        return [...new Array(heightSquares)].map((_, i) => ({
+            direction: 180,
+            x: this.left,
+            y: this.bottom - gridSize / 2 - gridSize * i,
+        }));
+    },
+    get topSpots() {
+        return [...new Array(widthSquares)].map((_, i) => ({
+            direction: 270,
+            x: this.left + gridSize / 2 + gridSize * i,
+            y: this.top,
+        }));
+    },
+    get allSpots() {
+
+        return [
+            ...this.rightSpots.slice(Math.floor(this.rightSpots.length / 2)),
+            { direction: 45, x: this.right, y: this.bottom },
+            ...this.bottomSpots,
+            { direction: 135, x: this.left, y: this.bottom },
+            ...this.leftSpots,
+            { direction: 225, x: this.left, y: this.top },
+            ...this.topSpots,
+            { direction: 315, x: this.right, y: this.top },
+            ...this.rightSpots.slice(0, Math.floor(this.rightSpots.length / 2)),
+        ];
     },
 });
 
@@ -43,7 +87,7 @@ if (typeof token === 'undefined') {
     if (source.cancelled) {
         return;
     }
-    square = sourceSquare({ x: source.x, y: source.y }, 1 ,1);
+    square = sourceSquare({ x: source.x, y: source.y }, 1, 1);
 }
 else {
     const size = Math.max(token.actor.data.data.size - 3, 1);
@@ -53,11 +97,9 @@ else {
 const templateData = {
     t: "cone",
     distance: 15,
-    direction: 0,
     fillColor: '#000000',
     angle: 90,
-    x: square.right,
-    y: square.center.y,
+    ...square.rightSpots[0],
 }
 
 let template = (await canvas.scene.createEmbeddedDocuments('MeasuredTemplate', [templateData]))[0];
@@ -67,85 +109,61 @@ const targetConfig = {
     drawOutline: false,
 }
 
-let currentCrosshairsAngle = 0;
+let currentSpotIndex = 0;
 const updateTemplateLocation = async (crosshairs) => {
     while (crosshairs.inFlight) {
         await warpgate.wait(100);
+
+        const totalSpots = 4 + 2 * square.heightSquares + 2 * square.widthSquares;
+        const radToNormalizedAngle = (rad) => {
+            const angle = (rad * 180 / Math.PI) % 360;
+            const normalizedAngle = Math.round(angle / (360 / totalSpots)) * (360 / totalSpots);
+            return normalizedAngle < 0
+                ? normalizedAngle + 360
+                : normalizedAngle;
+        }
+
         const ray = new Ray(square.center, crosshairs);
-        const angle = ray.angle * 180 / Math.PI;
-        let closestAngle = (Math.round(angle / 45) * 45) % 360;
-        if (closestAngle < 0) {
-            closestAngle += 360;
+        const angle = radToNormalizedAngle(ray.angle);
+        const spotIndex = angle / 360 * totalSpots;
+
+        if (spotIndex === currentSpotIndex) {
+            continue;
         }
 
-        if (currentCrosshairsAngle !== closestAngle) {
-            currentCrosshairsAngle = closestAngle;
+        currentSpotIndex = spotIndex;
+        const spot = square.allSpots[currentSpotIndex];
 
-            const update = {
-                direction: closestAngle
-            };
-            switch (closestAngle) {
-                case 315:
-                case 0:
-                case 45:
-                    update.x = square.right;
-                    break;
-                case 90:
-                case 270:
-                    update.x = square.center.x;
-                    break;
-                case 135:
-                case 180:
-                case 225:
-                    update.x = square.left;
-                    break;
-            }
-            switch (closestAngle) {
-                case 0:
-                case 180:
-                    update.y = square.center.y;
-                    break;
-                case 45:
-                case 90:
-                case 135:
-                    update.y = square.bottom;
-                    break;
-                case 225:
-                case 270:
-                case 315:
-                    update.y = square.top;
-                    break;
-            }
+        template = await template.update({ ...spot });
 
-            template = await template.update(update);
-
-            const getCenterOfSquares = (t) => {
-                const x1 = t.x + gridSize / 2;
-                const y1 = t.y + gridSize / 2;
-                const tokenSquaresWidth = t.data.width;
-                const tokenSquaresHeight = t.data.height;
-                const centers = [];
-                for (let x = 0; x < tokenSquaresWidth; x++) {
-                    for (let y = 0; y < tokenSquaresHeight; y++) {
-                        centers.push({ id: t.id, center: { x: x1 + x * gridSize, y: y1 + y * gridSize } });
-                    }
+        const getCenterOfSquares = (t) => {
+            const x1 = t.x + gridSize / 2;
+            const y1 = t.y + gridSize / 2;
+            const tokenSquaresWidth = t.data.width;
+            const tokenSquaresHeight = t.data.height;
+            const centers = [];
+            for (let x = 0; x < tokenSquaresWidth; x++) {
+                for (let y = 0; y < tokenSquaresHeight; y++) {
+                    centers.push({ id: t.id, center: { x: x1 + x * gridSize, y: y1 + y * gridSize } });
                 }
-                return centers;
-            };
-            const centers = canvas.tokens.placeables
-                .map(t => t.actor.data.data.size <= 4
-                        ? { id: t.id, center: t.center }
-                        : getCenterOfSquares(t))
-                .flatMap(x => x);
-            const tokenIdsToTarget = centers.filter(o => canvas.grid.getHighlightLayer('Template.' + template.id).geometry.containsPoint(o.center)).map(x => x.id);
-            game.user.updateTokenTargets(tokenIdsToTarget);
-        }
+            }
+            return centers;
+        };
+        const centers = canvas.tokens.placeables
+            .map(t => t.actor.data.data.size <= 4
+                ? { id: t.id, center: t.center }
+                : getCenterOfSquares(t))
+            .flatMap(x => x);
+        const tokenIdsToTarget = centers.filter(o => canvas.grid.getHighlightLayer('Template.' + template.id).geometry.containsPoint(o.center)).map(x => x.id);
+        game.user.updateTokenTargets(tokenIdsToTarget);
     }
 }
 
-const rotateCrosshairs = await warpgate.crosshairs.show(targetConfig, {
-    show: updateTemplateLocation
-});
+const rotateCrosshairs = await warpgate.crosshairs.show(
+    targetConfig,
+    {
+        show: updateTemplateLocation
+    });
 if (rotateCrosshairs.cancelled) {
     await template.delete();
     game.user.updateTokenTargets();
@@ -163,7 +181,7 @@ seq.effect()
     .file('jb2a.burning_hands.01.orange')
     .atLocation(template, { cacheLocation: true })
     .fadeIn(300)
-    .rotate(-currentCrosshairsAngle)
+    .rotate(-template.direction, { cacheLocation: true })
     .size(gridSize * 3)
     .scale({
         x: 1,
