@@ -163,7 +163,8 @@ if (rotateCrosshairs.cancelled) {
 const seq = new Sequence();
 seq.effect()
     .file('jb2a.magic_signs.rune.evocation.intro.red')
-    .atLocation(square, { relativeToCenter: true })
+    .atLocation(square)
+    .offset({ x: -square.w / 2, y: -square.h / 2 })
     .scaleToObject(1.6)
     .opacity(0.5)
     .waitUntilFinished();
