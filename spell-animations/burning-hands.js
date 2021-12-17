@@ -75,8 +75,9 @@ if (typeof token === 'undefined') {
     square = sourceSquare({ x: source.x, y: source.y }, 1, 1);
 }
 else {
-    const size = Math.max(token.actor.data.data.size - 3, 1);
-    square = sourceSquare(token.center, size, size);
+    const width = Math.max(Math.round(token.data.width), 1);
+    const height = Math.max(Math.round(token.data.height), 1)
+    square = sourceSquare(token.center, width, height);
 }
 
 const templateData = {
