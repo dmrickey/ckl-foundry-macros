@@ -18,7 +18,6 @@ for (let i = 0; i < missiles; i++) {
     new Sequence()
         .effect()
         .delay(i * 250, i * 250 + 175)
-        .JB2A()
         .file('jb2a.arrow.physical.blue')
         .atLocation(token)
         .reachTowards(target)
