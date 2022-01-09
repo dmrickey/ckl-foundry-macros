@@ -1,6 +1,17 @@
 // requires Warpgate, Sequencer, and JB2A patreon module
 
-const distanceAvailable = item.data.data.uses.value * 5;
+let distanceAvailable = 30;
+let icon = 'icons/magic/control/silhouette-grow-shrink-blue.webp';
+let updateItem = async () => {};
+
+if (typeof item !== 'undefined') {
+    distanceAvailable = item.data.data.uses.value * 5;
+    icon = item.data.img;
+    updateItem = async () => {
+        const updatedCharges = item.data.data.uses.value - crosshairsDistance / 5;
+        await item.update({ 'data.uses.value': updatedCharges });
+    };
+}
 
 let crosshairsDistance = 0;
 const checkDistance = async (crosshairs) => {
@@ -17,7 +28,7 @@ const checkDistance = async (crosshairs) => {
             if (distance > distanceAvailable) {
                 crosshairs.icon = 'icons/svg/hazard.svg';
             } else {
-                crosshairs.icon = item.data.img;
+                crosshairs.icon = icon;
             }
 
             crosshairs.draw();
@@ -31,7 +42,7 @@ const location = await warpgate.crosshairs.show(
         // swap between targeting the grid square vs intersection based on token's size
         interval: token.data.width % 2 === 0 ? 1 : -1,
         size: token.data.width,
-        icon: item.data.img,
+        icon: icon,
         label: '0 ft.',
     },
     {
@@ -49,10 +60,7 @@ const seq = new Sequence().effect()
     .file('jb2a.magic_signs.circle.02.conjuration.intro.blue')
     .waitUntilFinished(-500)
     .atLocation(token)
-    .thenDo(async () => {
-        const updatedCharges = item.data.data.uses.value - crosshairsDistance / 5;
-        await item.update({ 'data.uses.value': updatedCharges });
-    });
+    .thenDo(async () => { await updateItem(); });
 seq.animation()
     .on(token)
     .fadeOut(500)
