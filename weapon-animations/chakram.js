@@ -15,7 +15,6 @@ if (!token || !targets.length) return;
 if (targets.length === 1) {
     new Sequence()
         .effect()
-            .JB2A()
             .file(allInOnePath)
             .atLocation(token)
             .reachTowards(targets[0])
@@ -25,7 +24,6 @@ if (targets.length === 1) {
 else {
     const seq = new Sequence()
         .effect()
-            .JB2A()
             .file(throwPath)
             .atLocation(token)
             .reachTowards(targets[0])
@@ -36,7 +34,6 @@ else {
         const from = targets[i-1];
         const to = targets[i];
         seq.effect()
-            .JB2A()
             .file(throwPath)
             .startTime(550)
             .atLocation(from)
@@ -47,7 +44,6 @@ else {
 
     const last = targets[targets.length - 1];
     seq.effect()
-        .JB2A()
         .file(returnPath)
         .startTime(500)
         .atLocation(token)
