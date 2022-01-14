@@ -104,7 +104,7 @@ if (isOn) {
                         .attachTo(targetToken)
                         .name(textName)
                         .origin(origin)
-                        .offset({ x: targetToken.w / 2 - 10, y: targetToken.h / 2 - 10 })
+                        .offset({ x: -(targetToken.w / 2 - 10), y: -(targetToken.h / 2 - 10) })
                         .text(`1d${qty + 1}`, {
                             "fill": "#fafafa",
                             "fillGradientStops": [0],
