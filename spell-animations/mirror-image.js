@@ -104,7 +104,7 @@ if (isOn) {
                         .attachTo(targetToken)
                         .name(textName)
                         .origin(origin)
-                        .offset({ x: -(targetToken.w / 2 - 10), y: -(targetToken.h / 2 - 10) })
+                        .offset({ x: targetToken.w / 2 - 10, y: targetToken.h / 2 - 10 })
                         .text(`1d${qty + 1}`, {
                             "fill": "#fafafa",
                             "fillGradientStops": [0],
@@ -125,7 +125,7 @@ if (isOn) {
                         .delay(index * 75)
                         .from(targetToken)
                         .fadeIn(1000)
-                        .fadeOut(400)
+                        .fadeOut(200)
                         .origin(origin)
                         .attachTo(targetToken)
                         .loopProperty("sprite", "position.x", {
@@ -153,6 +153,7 @@ if (isOn) {
                             .file(spellEndAnimation)
                             .zIndex(1000)
                             .atLocation(effect, { cacheLocation: true })
+                            // .atLocation({ x: casterToken.center.x + effect.sprite.x, y: casterToken.center.y + effect.sprite.y })
                             .scaleToObject(2)
                             .fadeIn(100)
                             .thenDo(() => {
