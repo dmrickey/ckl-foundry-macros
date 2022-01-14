@@ -152,7 +152,7 @@ if (isOn) {
                         new Sequence().effect()
                             .file(spellEndAnimation)
                             .zIndex(1000)
-                            .atLocation({ x: casterToken.center.x + effect.sprite.x, y: casterToken.center.y + effect.sprite.y })
+                            .atLocation(effect, { cacheLocation: true })
                             .scaleToObject(2)
                             .fadeIn(100)
                             .thenDo(() => {
