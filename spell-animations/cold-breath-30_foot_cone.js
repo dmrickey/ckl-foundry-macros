@@ -90,6 +90,7 @@ const templateData = {
     fillColor: '#000000',
     angle: 90,
     ...square.allSpots[0],
+    user: game.userId,
 }
 
 let template = (await canvas.scene.createEmbeddedDocuments('MeasuredTemplate', [templateData]))[0];
