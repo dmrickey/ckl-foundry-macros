@@ -18,7 +18,7 @@ if (token) {
             .startTime(300)
             .endTime(1250)
             .atLocation(token)
-            .reachTowards(target);
+            .stretchTo(target);
 
         seq.effect()
             .delay(400)
