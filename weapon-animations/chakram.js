@@ -17,7 +17,7 @@ if (targets.length === 1) {
         .effect()
             .file(allInOnePath)
             .atLocation(token)
-            .reachTowards(targets[0])
+            .stretchTo(targets[0])
             .randomOffset(0.75)
         .play();
 }
@@ -26,7 +26,7 @@ else {
         .effect()
             .file(throwPath)
             .atLocation(token)
-            .reachTowards(targets[0])
+            .stretchTo(targets[0])
             .endTime(450)
             .waitUntilFinished(-100)
 
@@ -37,7 +37,7 @@ else {
             .file(throwPath)
             .startTime(550)
             .atLocation(from)
-            .reachTowards(to)
+            .stretchTo(to)
             .endTime(1000)
             .waitUntilFinished(-100)
     }
@@ -47,6 +47,6 @@ else {
         .file(returnPath)
         .startTime(500)
         .atLocation(token)
-        .reachTowards(last)
+        .stretchTo(last)
     .play();
 }
