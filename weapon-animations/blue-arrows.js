@@ -20,7 +20,7 @@ for (let i = 0; i < missiles; i++) {
         .delay(i * 250, i * 250 + 175)
         .file('jb2a.arrow.physical.blue')
         .atLocation(token)
-        .reachTowards(target)
+        .stretchTo(target)
         .randomOffset(0.75)
         .play();
 }
