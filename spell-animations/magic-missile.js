@@ -17,7 +17,7 @@ for (let i = 0; i < missiles; i++) {
         .JB2A()
         .file('jb2a.magic_missile')
         .atLocation(token)
-        .reachTowards(target)
+        .stretchTo(target)
         .randomOffset(0.75)
         .play();
 }
