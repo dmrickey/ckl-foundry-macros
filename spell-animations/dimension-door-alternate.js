@@ -1,5 +1,7 @@
 // requires JB2A, Sequencer, and Warpgate
 
+await Sequencer.Preloader.preloadForClients(["jb2a.magic_signs.rune.conjuration.intro.blue", "jb2a.portals.vertical.vortex.blue"])
+
 if (!token) {
     return;
 }
