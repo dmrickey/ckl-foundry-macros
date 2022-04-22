@@ -43,7 +43,7 @@ introSequence.animation()
     .opacity(0);
 introSequence.effect()
     .from(token)
-    .moveTowards({ x: token.center.x, y: token.center.y - token.h })
+    .moveTowards({ x: token.center.x, y: token.center.y - token.h }, { ease: 'easeInCubic' })
     .zeroSpriteRotation()
     .fadeOut(500)
     .duration(500);
@@ -60,7 +60,7 @@ outroSequence.effect()
     .fadeIn(200);
 outroSequence.effect()
     .from(token)
-    .atLocation({ x: position.x, y: position.y - token.h })
+    .atLocation({ x: position.x, y: position.y - token.h }, { ease: 'easeInCubic' })
     .fadeIn(500)
     .duration(500)
     .moveTowards(position)
