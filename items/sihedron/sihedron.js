@@ -10,6 +10,16 @@ const love = 'love';
 const temperance = 'temperance';
 const zeal = 'zeal';
 
+const allVirtues = [
+    charity,
+    generosity,
+    humility,
+    kindness,
+    love,
+    temperance,
+    zeal,
+];
+
 const opposed = {
     [charity]: new Set([kindness, temperance]),
     [generosity]: new Set([humility, love]),
@@ -21,54 +31,64 @@ const opposed = {
 }
 
 const buffs = {
-    [charity]: 'Sihedron - Charity',
-    [generosity]: 'Sihedron - Generosity',
-    [humility]: 'Sihedron - Humility',
-    [kindness]: 'Sihedron - Kindness',
-    [love]: 'Sihedron - Love',
-    [temperance]: 'Sihedron - Temperance',
-    [zeal]: 'Sihedron - Zeal',
+    [charity]: { name: 'Sihedron - Charity', value: '+4AC, Dimensional Anchor' },
+    [generosity]: { name: 'Sihedron - Generosity', value: '+4 Attack Rolls, Beast Shape' },
+    [humility]: { name: 'Sihedron - Humility', value: '+8 Skill Checks, Greater Invisibility' },
+    [kindness]: { name: 'Sihedron - Kindness', value: '+4 Weapon Damage, Ice Storm' },
+    [love]: { name: 'Sihedron - Love', value: '+2 Initiative, Charm Monster' },
+    [temperance]: { name: 'Sihedron - Temperance', value: 'Fast Healing 10, Fear' },
+    [zeal]: { name: 'Sihedron - Zeal', value: '+8 Concentration/Caster Level Checks, Dimension Door' },
 }
 
-var current = item.getFlag('world', 'virtue');
+const currentVirtue = item.getFlag('world', 'virtue');
 
-const buttons = Object.keys(opposed)
-    .filter((x) => !opposed[current]?.has(x))
-    .filter((x) => !current || x !== current)
-    .map((x) => ({ label: x, value: x }));
+const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const buttons = allVirtues
+    .filter((virtue) => !opposed[currentVirtue]?.has(virtue))
+    .filter((virtue) => !currentVirtue || virtue !== currentVirtue)
+    .map((virtue) => ({ label: capitalizeFirstLetter(virtue), value: virtue }));
 buttons.push({ label: 'cancel'});
 
-const inputs = [
-    { type: 'info', label: '<div style="width: 100%; text-align: center">Charity - +4AC, Dimensional Anchor</div>' },
-    { type: 'info', label: '<div style="width: 100%; text-align: center">Generosity - +4 Attack Rolls, Beast Shape</div' },
-    { type: 'info', label: '<div style="width: 100%; text-align: center">Humility - +8 Skill Checks, Greater Invisibility</div' },
-    { type: 'info', label: '<div style="width: 100%; text-align: center">Kindness - +4 Weapon Damage, Ice Storm</div' },
-    { type: 'info', label: '<div style="width: 100%; text-align: center">Love - +2 Initiative, Charm Monster</div' },
-    { type: 'info', label: '<div style="width: 100%; text-align: center">Temperance - Fast Healing 10, Fear</div' },
-    { type: 'info', label: '<div style="width: 100%; text-align: center">Zeal - +8 Concentration/Caster Level Checks, Dimension Door</div' },
-    { type: 'info', label: '<hr style="width: 100%" />' },
-];
-if (current) {
-    inputs.push({ type: 'info', label: `Currently active: ${ current }`});
+// const inputs = [
+//     { type: 'info', label: '<div style="width: 100%; text-align: center">Charity - +4AC, Dimensional Anchor</div>' },
+//     { type: 'info', label: '<div style="width: 100%; text-align: center">Generosity - +4 Attack Rolls, Beast Shape</div>' },
+//     { type: 'info', label: '<div style="width: 100%; text-align: center">Humility - +8 Skill Checks, Greater Invisibility</div>' },
+//     { type: 'info', label: '<div style="width: 100%; text-align: center">Kindness - +4 Weapon Damage, Ice Storm</div>' },
+//     { type: 'info', label: '<div style="width: 100%; text-align: center">Love - +2 Initiative, Charm Monster</div>' },
+//     { type: 'info', label: '<div style="width: 100%; text-align: center">Temperance - Fast Healing 10, Fear</div>' },
+//     { type: 'info', label: '<div style="width: 100%; text-align: center">Zeal - +8 Concentration/Caster Level Checks, Dimension Door</div>' },
+//     { type: 'info', label: '<hr style="width: 100%" />' },
+// ];
+
+let info = '<div style="display: grid; grid-template-columns: auto 1fr; grid-column-gap: 1rem; grid-row-gap: .5rem">';
+allVirtues.forEach(virtue => {
+    info += `<div>${ capitalizeFirstLetter(virtue) }</div><div>${ buffs[virtue].value }</div>`
+});
+info += '</div>';
+inputs = [{ type: 'info', label: info }];
+
+if (currentVirtue) {
+    inputs.push({ type: 'info', label: `Currently active: ${ capitalizeFirstLetter(currentVirtue) }`});
 }
 
-if (opposed[current]) {
-    const opp = [...opposed[current]];
+if (opposed[currentVirtue]) {
+    const opp = [...opposed[currentVirtue]];
     inputs.push({ type: 'info', label: `Currently opposed: ${opp[0]} and ${opp[1]}`});
 }
 
 const { buttons: choice } = await warpgate.menu({ buttons, inputs }, { title: 'Choose a point' });
 console.log(choice);
 
-// just a safety check to make sure it's a valid choice..don't actually care about `opposed`
-if (opposed[choice]) {
-    await item.setFlag('world', 'virtue', choice);
-
-    Object.keys(buffs).forEach((buffKey) => {
-        window.macroChain = [`Remove ${buffs[buffKey]} skipMessage`];
+// skip if chosen button is not a virtue (i.e. i it's canceled or given)
+if (allVirtues.includes(choice)) {
+    allVirtues.forEach((virtue) => {
+        window.macroChain = [`Remove ${buffs[virtue].name} skipMessage`];
         game.macros.getName("applyBuff")?.execute({actor, token});
     });
 
-    window.macroChain = [`Apply ${buffs[choice]}`];
+    await item.setFlag('world', 'virtue', choice);
+
+    window.macroChain = [`Apply ${buffs[choice].name}`];
     game.macros.getName("applyBuff")?.execute({actor, token});
 }
