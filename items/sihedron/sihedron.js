@@ -12,16 +12,6 @@ const love = 'love';
 const temperance = 'temperance';
 const zeal = 'zeal';
 
-const allVirtues = [
-    charity,
-    generosity,
-    humility,
-    kindness,
-    love,
-    temperance,
-    zeal,
-];
-
 const buffs = {
     [charity]: { name: 'Sihedron - Charity', value: '+4AC, Dimensional Anchor', opposed: new Set([kindness, temperance]) },
     [generosity]: { name: 'Sihedron - Generosity', value: '+4 Attack Rolls, Beast Shape', opposed: new Set([humility, love]) },
@@ -31,6 +21,7 @@ const buffs = {
     [temperance]: { name: 'Sihedron - Temperance', value: 'Fast Healing 10, Fear', opposed: new Set([charity, love]) },
     [zeal]: { name: 'Sihedron - Zeal', value: '+8 Concentration/Caster Level Checks, Dimension Door', opposed: new Set([humility, kindness]) },
 }
+const allVirtues = Object.keys(buffs);
 
 const currentVirtue = item.getFlag('world', 'virtue');
 const give = 'give';
