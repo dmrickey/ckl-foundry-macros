@@ -36,6 +36,15 @@ const currentVirtue = item.getFlag('world', 'virtue');
 const give = 'give';
 
 const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const turnOffAllBuffs = () => allVirtues.forEach((virtue) => {
+    window.macroChain = [`Remove ${buffs[virtue].name} skipMessage`];
+    game.macros.getName("applyBuff")?.execute({actor, token});
+});
+
+if (typeof equipped !== 'undefined' && !equipped) {
+    turnOffAllBuffs();
+    return;
+}
 
 const buttons = allVirtues
     .filter((virtue) => !buffs.opposed[currentVirtue]?.has(virtue))
@@ -65,10 +74,7 @@ console.log(chosenVirtue);
 
 // skip if chosen button is not a virtue (i.e. i it's canceled or given)
 if (allVirtues.includes(chosenVirtue)) {
-    allVirtues.forEach((virtue) => {
-        window.macroChain = [`Remove ${buffs[virtue].name} skipMessage`];
-        game.macros.getName("applyBuff")?.execute({actor, token});
-    });
+    turnOffAllBuffs();
 
     await item.setFlag('world', 'virtue', chosenVirtue);
 
