@@ -83,7 +83,7 @@ else if (chosenVirtue === give) {
     }
     const target = game.actors.get(targetData.id);
 
-    // todo unset current buff on item here instead of in other macro
+    // todo unset current virtue flag on item here instead of in other macro
     // todo both actors - heal 2d8 + 10, +2 to saves for one round
 
     if (target.testUserPermission(game.user, "OWNER")) {
