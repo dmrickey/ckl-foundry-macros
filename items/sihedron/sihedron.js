@@ -33,6 +33,7 @@ const buffs = {
 }
 
 const currentVirtue = item.getFlag('world', 'virtue');
+const give = 'give';
 
 const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -41,6 +42,7 @@ const buttons = allVirtues
     .filter((virtue) => !currentVirtue || virtue !== currentVirtue)
     .map((virtue) => ({ label: capitalizeFirstLetter(virtue), value: virtue }));
 buttons.push({ label: 'cancel'});
+buttons.push({ label: 'Give', value: give })
 
 let virtueHints = '<div style="display: grid; grid-template-columns: auto 1fr; grid-column-gap: 1rem; grid-row-gap: .5rem">';
 allVirtues.forEach(virtue => {
@@ -58,18 +60,49 @@ if (buffs[currentVirtue]?.opposed) {
     inputs.push({ type: 'info', label: `Currently opposed: ${opp[0]} and ${opp[1]}`});
 }
 
-const { buttons: choice } = await warpgate.menu({ buttons, inputs }, { title: 'Choose a point' });
-console.log(choice);
+const { buttons: chosenVirtue } = await warpgate.menu({ buttons, inputs }, { title: 'Choose a point' });
+console.log(chosenVirtue);
 
 // skip if chosen button is not a virtue (i.e. i it's canceled or given)
-if (allVirtues.includes(choice)) {
+if (allVirtues.includes(chosenVirtue)) {
     allVirtues.forEach((virtue) => {
         window.macroChain = [`Remove ${buffs[virtue].name} skipMessage`];
         game.macros.getName("applyBuff")?.execute({actor, token});
     });
 
-    await item.setFlag('world', 'virtue', choice);
+    await item.setFlag('world', 'virtue', chosenVirtue);
 
-    window.macroChain = [`Apply ${buffs[choice].name}`];
+    window.macroChain = [`Apply ${buffs[chosenVirtue].name}`];
     game.macros.getName("applyBuff")?.execute({actor, token});
+}
+
+// todo make sure this works. I don't know if I can invoke a pf1-specific socket here
+else if (chosenVirtue === give) {
+    // todo filter out self
+    const targets = game.actors.contents.filter((o) => o.hasPlayerOwner && !o.testUserPermission(game.user, "OWNER"));
+    const targetData = await game.pf1.utils.dialogGetActor(`Give item to actor`, targets);
+    if (!targetData) {
+        return;
+    }
+    const target = game.actors.get(targetData.id);
+
+    // todo unset current buff on item here instead of in other macro
+    // todo both actors - heal 2d8 + 10, +2 to saves for one round
+
+    if (target.testUserPermission(game.user, "OWNER")) {
+        const itemData = item.toObject();
+        await target.createEmbeddedDocuments("Item", [itemData]);
+        await item.document.deleteEmbeddedDocuments("Item", [item.id]);
+    }
+    else {
+        game.socket.emit(
+            "system.pf1",
+            {
+                eventType: "giveItem",
+                targetActor: target.uuid,
+                item: item.uuid,
+            }
+        );
+        // Deleting will be performed on the gm side as well to prevent race conditions
+    }
 }
