@@ -2,6 +2,8 @@
 // This requires that Noon's `applyBuff` macro be in your world
 // This requires that you have configured Buffs in your world for this macro to swap between (see `buffs` variable below for expected names)
 
+// goes in `On Use` and `On Equip` advanced script calls
+
 const charity = 'charity';
 const generosity = 'generosity';
 const humility = 'humility';
@@ -25,7 +27,7 @@ const buffs = {
     [generosity]: { name: 'Sihedron - Generosity', value: '+4 Attack Rolls, Beast Shape', opposed: new Set([humility, love]) },
     [humility]: { name: 'Sihedron - Humility', value: '+8 Skill Checks, Greater Invisibility', opposed: new Set([generosity, zeal]) },
     [kindness]: { name: 'Sihedron - Kindness', value: '+4 Weapon Damage, Ice Storm', opposed: new Set([charity, zeal]) },
-    [love]: { name: 'Sihedron - Love', value: '+2 Initiative, Charm Monster', opposed: new Set([generosity, temperance]) },
+    [love]: { name: 'Sihedron - Love', value: '+8 Initiative, Charm Monster', opposed: new Set([generosity, temperance]) },
     [temperance]: { name: 'Sihedron - Temperance', value: 'Fast Healing 10, Fear', opposed: new Set([charity, love]) },
     [zeal]: { name: 'Sihedron - Zeal', value: '+8 Concentration/Caster Level Checks, Dimension Door', opposed: new Set([humility, kindness]) },
 }
