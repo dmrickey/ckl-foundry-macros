@@ -42,12 +42,12 @@ const buttons = allVirtues
     .map((virtue) => ({ label: capitalizeFirstLetter(virtue), value: virtue }));
 buttons.push({ label: 'cancel'});
 
-let info = '<div style="display: grid; grid-template-columns: auto 1fr; grid-column-gap: 1rem; grid-row-gap: .5rem">';
+let virtueHints = '<div style="display: grid; grid-template-columns: auto 1fr; grid-column-gap: 1rem; grid-row-gap: .5rem">';
 allVirtues.forEach(virtue => {
-    info += `<div>${ capitalizeFirstLetter(virtue) }</div><div>${ buffs[virtue].value }</div>`
+    virtueHints += `<div>${ capitalizeFirstLetter(virtue) }</div><div>${ buffs[virtue].value }</div>`
 });
-info += '</div>';
-inputs = [{ type: 'info', label: info }];
+virtueHints += '</div>';
+inputs = [{ type: 'info', label: virtueHints }];
 
 if (currentVirtue) {
     inputs.push({ type: 'info', label: `Currently active: ${ capitalizeFirstLetter(currentVirtue) }`});
