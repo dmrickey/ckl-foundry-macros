@@ -1,4 +1,5 @@
-// This requires that Warpgate be installed to show the menu
+// This requires `Warpgate` - for showing the button menu
+// This requires `Tagger` - for grabbing all the player tokens in the scene for valid choices to give the Sihedron to (and they all have to be tagged `player`)
 // This requires that Noon's `applyBuff` macro be in your world
 // This requires that you have configured Buffs in your world for this macro to swap between (see `buffs` variable below for expected names) - plus a buff for +2 bonus to saves called `Sihedron!`
 
