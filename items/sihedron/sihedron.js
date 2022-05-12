@@ -46,7 +46,7 @@ const heal = async () => {
 
     canvas.tokens.controlled = [token];
     const amount = RollPF.safeTotal('2d8 + 10');
-    await ActorPF.applyDamage(-amount)
+    await game.pf1.documents.ActorPF.applyDamage(-amount);
 
     canvas.tokens.controlled = originalControlled;
 }
@@ -71,8 +71,8 @@ const buttons = allVirtues
     .filter((virtue) => !buffs[currentVirtue]?.opposed.has(virtue))
     .filter((virtue) => !currentVirtue || virtue !== currentVirtue)
     .map((virtue) => ({ label: capitalizeFirstLetter(virtue), value: virtue }));
+buttons.push({ label: 'Give', value: give });
 buttons.push({ label: 'Cancel'});
-buttons.push({ label: 'Give', value: give })
 
 let virtueHints = '<div style="display: grid; grid-template-columns: auto 1fr; grid-column-gap: 1rem; grid-row-gap: .5rem">';
 allVirtues.forEach(virtue => {
@@ -105,9 +105,12 @@ if (allVirtues.includes(chosenVirtue)) {
 // todo make sure this works. I don't know if I can invoke a pf1-specific socket here
 else if (chosenVirtue === give) {
     // todo filter out self
-    const targets = game.actors.contents.filter((o) => o.hasPlayerOwner && !o.testUserPermission(game.user, "OWNER"));
-    const targetData = await game.pf1.utils.dialogGetActor(`Give item to actor`, targets);
+    const actors = Tagger.getByTag("player")
+        .map(x => x.object.actor)
+        .filter(x => x.id !== actor.id);
+    const targetData = await game.pf1.utils.dialogGetActor('Give Sihedron to', actors);
     if (!targetData) {
+        shared.reject = true;
         return;
     }
     const target = game.actors.get(targetData.id);
@@ -120,7 +123,7 @@ else if (chosenVirtue === give) {
     if (target.testUserPermission(game.user, "OWNER")) {
         const itemData = item.toObject();
         await target.createEmbeddedDocuments("Item", [itemData]);
-        await item.document.deleteEmbeddedDocuments("Item", [item.id]);
+        await item.delete();
     }
     else {
         game.socket.emit(
