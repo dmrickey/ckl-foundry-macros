@@ -68,7 +68,7 @@ if (typeof equipped !== 'undefined') {
 }
 
 const buttons = allVirtues
-    .filter((virtue) => !buffs.opposed[currentVirtue]?.has(virtue))
+    .filter((virtue) => !buffs[currentVirtue]?.opposed.has(virtue))
     .filter((virtue) => !currentVirtue || virtue !== currentVirtue)
     .map((virtue) => ({ label: capitalizeFirstLetter(virtue), value: virtue }));
 buttons.push({ label: 'Cancel'});
