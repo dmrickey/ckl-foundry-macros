@@ -1,6 +1,6 @@
 // This requires that Warpgate be installed to show the menu
 // This requires that Noon's `applyBuff` macro be in your world
-// This requires that you have configured Buffs in your world for this macro to swap between (see `buffs` variable below for expected names)
+// This requires that you have configured Buffs in your world for this macro to swap between (see `buffs` variable below for expected names) - plus a buff for +2 bonus to saves called `Sihedron!`
 
 // goes in `On Use` and `On Equip` advanced script calls
 
@@ -26,22 +26,52 @@ const allVirtues = Object.keys(buffs);
 const currentVirtue = item.getFlag('world', 'virtue');
 const give = 'give';
 
-const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-const turnOffAllBuffs = () => allVirtues.forEach((virtue) => {
-    window.macroChain = [`Remove ${buffs[virtue].name} skipMessage`];
+const executeApplyBuff = (command) => {
+    window.macroChain = [command];
     game.macros.getName("applyBuff")?.execute({actor, token});
+}
+
+const capitalizeFirstLetter = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const turnOffAllBuffs = () => allVirtues.forEach((virtue) => {
+    executeApplyBuff(`Remove ${buffs[virtue].name} skipMessage`);
 });
 
-if (typeof equipped !== 'undefined' && !equipped) {
-    turnOffAllBuffs();
-    return;
+const heal = async () => {
+    if (typeof token === 'undefined' || !token) {
+        return;
+    }
+
+    const originalControlled = canvas.tokens.controlled;
+
+    canvas.tokens.controlled = [token];
+    const amount = RollPF.safeTotal('2d8 + 10');
+    await ActorPF.applyDamage(-amount)
+
+    canvas.tokens.controlled = originalControlled;
+}
+
+if (typeof equipped !== 'undefined') {
+    if (equipped) {
+        const shouldHeal = item.getFlag('world', 'healOnEquip');
+        if (shouldHeal) {
+            await heal();
+            executeApplyBuff('Apply Sihedron!');
+            await item.unsetFlag('world', 'healOnEquip');
+        }
+    }
+    // if unequipping
+    else {
+        turnOffAllBuffs();
+        return;
+    }
 }
 
 const buttons = allVirtues
     .filter((virtue) => !buffs.opposed[currentVirtue]?.has(virtue))
     .filter((virtue) => !currentVirtue || virtue !== currentVirtue)
     .map((virtue) => ({ label: capitalizeFirstLetter(virtue), value: virtue }));
-buttons.push({ label: 'cancel'});
+buttons.push({ label: 'Cancel'});
 buttons.push({ label: 'Give', value: give })
 
 let virtueHints = '<div style="display: grid; grid-template-columns: auto 1fr; grid-column-gap: 1rem; grid-row-gap: .5rem">';
@@ -69,8 +99,7 @@ if (allVirtues.includes(chosenVirtue)) {
 
     await item.setFlag('world', 'virtue', chosenVirtue);
 
-    window.macroChain = [`Apply ${buffs[chosenVirtue].name}`];
-    game.macros.getName("applyBuff")?.execute({actor, token});
+    executeApplyBuff(`Apply ${buffs[chosenVirtue].name}`);
 }
 
 // todo make sure this works. I don't know if I can invoke a pf1-specific socket here
@@ -84,7 +113,9 @@ else if (chosenVirtue === give) {
     const target = game.actors.get(targetData.id);
 
     await item.unsetFlag('world', 'virtue');
-    // todo both actors - heal 2d8 + 10, +2 to saves for one round
+    await heal();
+    await item.setFlag('world', 'healOnEquip');
+    executeApplyBuff('Apply Sihedron!');
 
     if (target.testUserPermission(game.user, "OWNER")) {
         const itemData = item.toObject();
