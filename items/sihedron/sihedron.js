@@ -45,12 +45,12 @@ const heal = async () => {
 
     const originalControlled = canvas.tokens.controlled;
 
-    canvas.tokens.selectObjects(token);
+    token.control();
     const amount = RollPF.safeTotal('2d8 + 10');
     await game.pf1.documents.ActorPF.applyDamage(-amount);
 
-    // todo iterate over selected and call `selectObjects`
-    // canvas.tokens.controlled = originalControlled;
+    canvas.tokens.releaseAll();
+    originalControlled.forEach(t => t.control({ releaseOthers: false });
 }
 
 if (typeof equipped !== 'undefined') {
