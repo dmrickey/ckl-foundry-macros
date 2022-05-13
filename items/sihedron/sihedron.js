@@ -50,7 +50,7 @@ const heal = async () => {
     await game.pf1.documents.ActorPF.applyDamage(-amount);
 
     canvas.tokens.releaseAll();
-    originalControlled.forEach(t => t.control({ releaseOthers: false });
+    originalControlled.forEach(t => t.control({ releaseOthers: false }));
 }
 
 if (typeof equipped !== 'undefined') {
