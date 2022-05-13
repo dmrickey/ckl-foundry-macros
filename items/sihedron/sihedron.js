@@ -94,9 +94,13 @@ if (buffs[currentVirtue]?.opposed) {
 
 const { buttons: chosenVirtue } = await warpgate.menu({ buttons, inputs }, { title: 'Choose a point' });
 
-if (allVirtues.includes(chosenVirtue)) {
-    turnOffAllBuffs();
+if (!chosenVirtue) {
+    return;
+}
 
+turnOffAllBuffs();
+
+if (allVirtues.includes(chosenVirtue)) {
     await item.setFlag('world', 'virtue', chosenVirtue);
 
     executeApplyBuff(`Apply ${buffs[chosenVirtue].name}`);
@@ -114,7 +118,7 @@ else if (chosenVirtue === give) {
 
     await item.unsetFlag('world', 'virtue');
     await heal();
-    await item.setFlag('world', 'healOnEquip');
+    await item.setFlag('world', 'healOnEquip', true);
     executeApplyBuff('Apply Sihedron!');
 
     if (target.testUserPermission(game.user, "OWNER")) {
