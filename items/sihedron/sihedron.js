@@ -93,9 +93,7 @@ if (buffs[currentVirtue]?.opposed) {
 }
 
 const { buttons: chosenVirtue } = await warpgate.menu({ buttons, inputs }, { title: 'Choose a point' });
-console.log(chosenVirtue);
 
-// skip if chosen button is not a virtue (i.e. i it's canceled or given)
 if (allVirtues.includes(chosenVirtue)) {
     turnOffAllBuffs();
 
@@ -103,10 +101,7 @@ if (allVirtues.includes(chosenVirtue)) {
 
     executeApplyBuff(`Apply ${buffs[chosenVirtue].name}`);
 }
-
-// todo make sure this works. I don't know if I can invoke a pf1-specific socket here
 else if (chosenVirtue === give) {
-    // todo filter out self
     const actors = Tagger.getByTag("player")
         .map(x => x.object.actor)
         .filter(x => x.id !== actor.id);
