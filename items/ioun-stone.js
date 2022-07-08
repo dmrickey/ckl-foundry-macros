@@ -12,7 +12,7 @@ if (equipped) {
         .spriteOffset({ y: token.height/2 })
         .zeroSpriteRotation(true)
         .loopProperty("spriteContainer", "rotation", { from: 0, to: 360, duration: 6000 })
-        .persist()
+        .persist(true, { persistTokenPrototype: true })
         .name(name)
     .play();
 }    
