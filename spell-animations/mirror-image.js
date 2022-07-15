@@ -1,4 +1,5 @@
 // requires JB2A patreon and Sequencer
+//  (or free JB2A, see animation options below on line 17)
 
 let casterToken = token;
 let isOn = true;
@@ -13,6 +14,7 @@ const targetTokens = game.user.targets.size
 const illusionAnimation = 'jb2a.extras.tmfx.runes.circle.simple.illusion';
 const spellStartAnimation = 'jb2a.impact.004.dark_purple';
 const spellEndAnimation = 'jb2a.impact.003.dark_purple';
+// replace `dark_purple` with `blue` to use the free JB2A animations
 
 const origin = 'mirror-image';
 
