@@ -1,3 +1,5 @@
+// DO NOT USE THIS - the database updates happen way too frequently and this is not a good experience for anyone. It only worked for me because I was self-hosting and testing it on the same machine that foundry was running on
+
 // requires warpgate, jb2a patreon, and sequencer
 
 const gridSize = canvas.grid.h;
