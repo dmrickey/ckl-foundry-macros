@@ -5,10 +5,10 @@ let icon = 'icons/magic/control/silhouette-grow-shrink-blue.webp';
 let updateItem = async () => {};
 
 if (typeof item !== 'undefined') {
-    distanceAvailable = item.data.data.uses.value * 5;
+    distanceAvailable = item.system.uses.value * 5;
     icon = item.data.img;
     updateItem = async () => {
-        const updatedCharges = item.data.data.uses.value - crosshairsDistance / 5;
+        const updatedCharges = item.system.uses.value - crosshairsDistance / 5;
         await item.update({ 'data.uses.value': updatedCharges });
     };
 }
