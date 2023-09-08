@@ -32,8 +32,15 @@ const tokensInRange = me.scene.tokens.filter((target) => {
 });
 
 for (const t of tokensInRange) {
-    const aes = t?.actor?.effects?.filter((ae) => buffs.includes(ae.name?.toLowerCase()));
+    const aes = t?.actor?.effects?.filter((ae) => buffs.includes(ae.label?.toLowerCase()));
     for (const ae of aes) {
-        await ae.update({"duration.seconds": ae.duration.seconds + 6});
+        const seconds = (ae.duration.seconds || (ae.duration.rounds * CONFIG.time.roundTime)) || 0;
+        const data = {
+            duration: {
+                seconds: seconds + 6,
+                rounds: null,
+            },
+        };
+        await ae.update(data);
     }
 }
