@@ -31,6 +31,8 @@ const tokensInRange = me.scene.tokens.filter((target) => {
     return closest <= range;
 });
 
+const updated = [];
+
 for (const t of tokensInRange) {
     const aes = t?.actor?.effects?.filter((ae) => buffs.includes(ae.label?.toLowerCase()));
     for (const ae of aes) {
@@ -43,4 +45,23 @@ for (const t of tokensInRange) {
         };
         await ae.update(data);
     }
+
+    if (aes.length) {
+        updated.push({name: t.name, buffs: aes.map(ae => ae.label)});
+    }
+}
+
+if (updated.length) {
+    const messages = [
+        'Cackle updated:',
+        '<br />',
+        ...updated.map(({name, buffs}) => `${name}: ${buffs.join(', ')}`),
+    ];
+
+    const chatData = {
+        user: game.user._id,
+        speaker: ChatMessage.getSpeaker(),
+        content: messages.join('<br />')
+    };
+    ChatMessage.create(chatData, {});
 }
