@@ -1,5 +1,10 @@
+// I don't know if it works with the current version of sequencer. 
+// You can use it from a macro or in a buff toggle script. 
+// The macro rolls its own number of images and prints a 1dx on the token meaning that's the die you have to roll to hit that token
+// To "pop" an image you open up the sequencer menu and kill one of the sequences, the number will update when one of the images "pop"
+
 // requires JB2A patreon and Sequencer
-//  (or free JB2A, see animation options below on line 17)
+//  (or free JB2A, see animation options below on line 19)
 
 let casterToken = token;
 let isOn = true;
