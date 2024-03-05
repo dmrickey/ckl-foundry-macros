@@ -20,6 +20,9 @@ async function handleChatMessage({ itemSource }) {
     Hooks.off('createChatMessage', handleChatMessage);
 };
 
-Hooks.once('createChatMessage', handleChatMessage);
-setTimeout(() => Hooks.off('createChatMessage', handleChatMessage), 500);
+Hooks.on('createChatMessage', handleChatMessage);
+
+// the amount of time to wait before the chat messages shows up (in milliseconds). Increase this if your environment takes longer
+const timeout = 500;
+setTimeout(() => Hooks.off('createChatMessage', handleChatMessage), timeout);
 /** end item use callback example */
