@@ -20,6 +20,6 @@ async function handleChatMessage({ itemSource }) {
     Hooks.off('createChatMessage', handleChatMessage);
 };
 
-Hooks.on('createChatMessage', handleChatMessage);
+Hooks.once('createChatMessage', handleChatMessage);
 setTimeout(() => Hooks.off('createChatMessage', handleChatMessage), 500);
 /** end item use callback example */
