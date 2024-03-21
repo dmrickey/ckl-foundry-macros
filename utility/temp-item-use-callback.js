@@ -9,9 +9,11 @@ async function handleChatMessage({ itemSource }) {
         return;
     }
 
+    // example on how to fetch token
     const tokenId = msg.speaker?.token;
     const token = tokenId ? canvas.scene.tokens.get(tokenId) : null;
 
+    // example on how to fetch actor
     const actorId = msg.speaker?.actor;
     const actor = actorId ? game.actors.get(actorId) : null;
 
