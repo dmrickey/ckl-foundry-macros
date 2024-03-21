@@ -1,8 +1,9 @@
 
 
 /** 
- * This is an example on how to use it in an item On Use script call.
- * this is specifically in a `createChatMessage` callback so it can access extra data about the attack from the chat card - like targets
+ * This is an example on how to use it in an item _On Use script call_.
+ * 
+ * This is specifically in a `createChatMessage` callback so it can access extra data about the attack from the chat card - like targets
  */
 async function handleChatMessage({ itemSource }) {
     if (itemSource !== item) {
