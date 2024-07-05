@@ -125,7 +125,7 @@ if (isOn) {
           if (!qty) {
             qty = Sequencer.EffectManager.getEffects({ object: targetToken, origin }).length;
             if (qty <= 0) {
-              if (item.type === 'buff') {
+              if (typeof item !== 'undefined' && item.type === 'buff') {
                 await item.update({ 'data.active': false });
               }
               return;
