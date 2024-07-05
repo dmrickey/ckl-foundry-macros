@@ -1,29 +1,55 @@
-// I don't know if it works with the current version of sequencer. 
-// You can use it from a macro or in a buff toggle script. 
+// last tested with:
+//   Foundry v11
+//   Pathfinder v10.x
+//   Sequencer v3.2.9
+
+// How to use
+//   Add it as a script toggle on a Buff. It will use the buff's Item level to determine how many images to add
+//   Add it as use scrip to a spell, it will instead use the spell's caster level
+//   Use it on its own as just a macro. It will prompt you to put in the exact number of images to use and will add the images to the selected token
+
 // The macro rolls its own number of images and prints a 1dx on the token meaning that's the die you have to roll to hit that token
-// To "pop" an image you open up the sequencer menu and kill one of the sequences, the number will update when one of the images "pop"
+
+// To "pop" an image you open up the Sequencer Manager and kill one of the sequences, the number will update when one of the images "pop"
 
 // requires JB2A patreon and Sequencer
-//  (or free JB2A, see animation options below on line 19)
-
-let casterToken = token;
-let isOn = true;
-let numberOfImages = 5;
-const targetTokens = game.user.targets.size
-  ? [...game.user.targets]
-  : casterToken
-    ? [casterToken]
-    : [];
-
+//  (or free JB2A, see animation options below)
 // swap these out to change the animations
 const illusionAnimation = 'jb2a.extras.tmfx.runes.circle.simple.illusion';
 const spellStartAnimation = 'jb2a.impact.004.dark_purple';
 const spellEndAnimation = 'jb2a.impact.003.dark_purple';
 // replace `dark_purple` with `blue` to use the free JB2A animations
 
+let casterToken = token;
+let isOn = true;
+let numberOfImages = 0;
+const targetTokens = game.user.targets.size
+  ? [...game.user.targets]
+  : casterToken
+    ? [casterToken]
+    : [];
+
+if (!targetTokens.length) {
+  ui.notifications.warn("You must select a token for Mirror Images.")
+  return;
+}
+
 const origin = 'mirror-image';
 
-if (typeof item !== 'undefined' && typeof token !== 'undefined') {
+if (typeof item === 'undefined' || typeof token === 'undefined') {
+  await Dialog.prompt({
+    title: 'Mirror Images',
+    content: `
+      <form>
+        <div class="form-group"><label>Number of images</label><div class="form-fields"><input type="number" id="qty"></div></div>
+      </form>`,
+    label: 'Okay',
+    callback: (html) => {
+      numberOfImages = +(html[0].querySelector("#qty").value) || 0;
+    }
+  });
+}
+else {
   casterToken = token;
   if (item.type === 'buff') {
     isOn = state;
@@ -31,7 +57,7 @@ if (typeof item !== 'undefined' && typeof token !== 'undefined') {
 
   numberOfImages = isOn ? RollPF.safeTotal("1d4") : 4;
   if (item.type === 'buff') {
-    numberOfImages += Math.floor(item.data.data.level / 3);
+    numberOfImages += Math.floor(item.system.level / 3);
   }
   else if (item.type === 'spell') {
     numberOfImages += Math.floor(item.casterLevel / 3);
