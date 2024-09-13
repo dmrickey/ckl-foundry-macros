@@ -1,3 +1,5 @@
+// Random fireworks within the screen
+
 const quantity = 15;
 const path = 'jb2a.firework';
 
