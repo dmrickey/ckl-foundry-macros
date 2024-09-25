@@ -1,0 +1,102 @@
+{
+  "name": "Spell Combat Concentration",
+  "type": "buff",
+  "img": "icons/magic/defensive/shield-barrier-deflect-gold.webp",
+  "system": {
+    "description": {
+      "value": ""
+    },
+    "tags": [],
+    "changes": [
+      {
+        "type": "untyped",
+        "_id": "8tvwqayC",
+        "operator": "add",
+        "priority": 0,
+        "formula": "@dFlags.spellCombatConcentration.magusConcentrationBonus",
+        "target": "concn.primary"
+      },
+      {
+        "type": "untyped",
+        "_id": "VzlXzB9X",
+        "operator": "add",
+        "priority": 0,
+        "formula": "-@dFlags.spellCombatConcentration.magusConcentrationBonus",
+        "target": "attack"
+      }
+    ],
+    "changeFlags": {
+      "loseDexToAC": false,
+      "noMediumEncumbrance": false,
+      "noHeavyEncumbrance": false,
+      "mediumArmorFullSpeed": false,
+      "heavyArmorFullSpeed": false
+    },
+    "contextNotes": [],
+    "actions": [],
+    "attackNotes": [],
+    "effectNotes": [],
+    "uses": {
+      "value": null,
+      "per": "",
+      "autoDeductChargesCost": "",
+      "maxFormula": "",
+      "rechargeFormula": ""
+    },
+    "links": {
+      "children": []
+    },
+    "tag": "",
+    "flags": {
+      "boolean": {},
+      "dictionary": {
+        "magusConcentrationBonus": "5"
+      }
+    },
+    "scriptCalls": [
+      {
+        "_id": "XyDB0ADZyBJfBmeS",
+        "name": "Select Bonus",
+        "img": "icons/svg/dice-target.svg",
+        "type": "script",
+        "value": "if (state) {\n  const int = actor.system.abilities.int.mod;\n  const choices = [...new Array(int)].map((_, i) => i + 1);\n\n  const template = `<style>\n    .magus-picker .form-group {\n      display: flex;\n      flex-direction: column;\n    }\n  </style>\n  <form>\n    <div>If he casts this spell defensively, he can decide to take an additional penalty on his attack rolls, up to his Intelligence bonus (+{{int}}), and add the same amount as a circumstance bonus on his concentration check</div>\n    <div class=\"form-group\">\n    {{#each choices}}\n      <label class=\"radio-label\" for=\"choices-{{this}}\">\n        <input type=\"radio\" id=\"choices-{{this}}\" value=\"{{this}}\" name=\"choice\" {{#if (eq this choices.length)}}checked{{/if}}>\n        {{this}}\n      </label>\n    {{/each}}\n    </div>\n  </form>\n  `\n\n  const templateData = {\n    int,\n    choices,\n  }\n\n  const message = await Dialog.prompt({\n    title: \"Make your own message\",\n    content: Handlebars.compile(template)(templateData, { allowProtoMethodsByDefault: true, allowProtoPropertiesByDefault: true }),\n    callback: ([html]) => new FormDataExtended(html.querySelector(\"form\")).object,\n    options: {classes:[\"magus-picker\"]},\n    rejectClose: false,\n  });\n\n  console.log(message);\n  if (message) {\n    item.setItemDictionaryFlag('magusConcentrationBonus', message.choice);\n  }\n  else {\n    item.setActive(false);\n  }\n}",
+        "category": "toggle",
+        "hidden": false
+      }
+    ],
+    "subType": "feat",
+    "active": false,
+    "level": 0,
+    "duration": {
+      "value": "1",
+      "units": "turn",
+      "start": 48,
+      "end": "turnStart"
+    },
+    "conditions": {
+      "value": [],
+      "custom": []
+    },
+    "hideFromToken": false,
+    "showInQuickbar": false
+  },
+  "effects": [],
+  "folder": null,
+  "flags": {
+    "core": {},
+    "exportSource": {
+      "world": "no-mods",
+      "system": "pf1",
+      "coreVersion": "11.315",
+      "systemVersion": "10.7"
+    }
+  },
+  "_stats": {
+    "systemId": "pf1",
+    "systemVersion": "10.7",
+    "coreVersion": "11.315",
+    "createdTime": 1727302170841,
+    "modifiedTime": 1727302854612,
+    "lastModifiedBy": "ofL9f7zs368Vmo62"
+  }
+}

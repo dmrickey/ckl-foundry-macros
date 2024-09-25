@@ -1,0 +1,92 @@
+{
+  "name": "True Strike",
+  "type": "buff",
+  "img": "icons/skills/targeting/target-strike-gray.webp",
+  "system": {
+    "description": {
+      "value": "<blockquote><p>This buff is configured with a script call that registers a hook to turn itself off. That means this will not survive a browser refresh - which also means it won't survive if you log out and come back later. Anything that interrupts the current browser session will interrupt this automatically turning off after one use.</p><p>But since this is basically used right away, this will be fine for most cases.</p></blockquote><p><span style=\"font-family:Signika, sans-serif\">You gain temporary, intuitive insight into the immediate future during your next attack. Your next single attack roll (if it is made before the end of the next round) gains a +20 insight bonus.</span></p><p style=\"box-sizing:border-box;user-select:text;margin:0.5em 0px;color:rgb(25, 24, 19);font-family:Signika, sans-serif;font-size:13px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:normal;orphans:2;text-indent:0px;text-transform:none;widows:2;word-spacing:0px;-webkit-text-stroke-width:0px;white-space:normal;text-decoration-thickness:initial;text-decoration-style:initial;text-decoration-color:initial;text-align:start\"><span style=\"font-family:Signika, sans-serif\">Additionally, you are not affected by the miss chance that applies to attackers trying to strike a concealed target.</span></p>"
+    },
+    "tags": [],
+    "changes": [
+      {
+        "type": "untyped",
+        "_id": "daoZNvWx",
+        "operator": "add",
+        "priority": 0,
+        "formula": "@attackCount === 0 ? 20 : 0",
+        "target": "attack"
+      }
+    ],
+    "changeFlags": {
+      "loseDexToAC": false,
+      "noMediumEncumbrance": false,
+      "noHeavyEncumbrance": false,
+      "mediumArmorFullSpeed": false,
+      "heavyArmorFullSpeed": false
+    },
+    "contextNotes": [],
+    "actions": [],
+    "attackNotes": [],
+    "effectNotes": [],
+    "uses": {
+      "value": null,
+      "per": "",
+      "autoDeductChargesCost": "",
+      "maxFormula": "",
+      "rechargeFormula": ""
+    },
+    "links": {
+      "children": []
+    },
+    "tag": "",
+    "flags": {
+      "boolean": {},
+      "dictionary": {}
+    },
+    "scriptCalls": [
+      {
+        "_id": "0kQRfN4hqxqX1F6y",
+        "name": "Toggle off after use",
+        "img": "icons/svg/dice-target.svg",
+        "type": "script",
+        "value": "// this goes in the toggle script call for a buff\n\nasync function handleBuff(actionUse) {\n    if (actionUse.actor === actor && actionUse.action?.hasAttack) {\n        // turn off this buff\n        await item.setActive(false);\n\n        // turn off the hook so this doesn't have to respond anymore\n        Hooks.off('pf1PreDisplayActionUse', handleBuff);\n    }\n};\n\nif (state) {\n    // when this buff is enabled, start listening for a spell to be cast\n    Hooks.on('pf1PreDisplayActionUse', handleBuff);\n}\nelse {\n    // when this buff is disabled, stop listening for any spells to be cast\n    Hooks.off('pf1PreDisplayActionUse', handleBuff);\n}",
+        "category": "toggle",
+        "hidden": false
+      }
+    ],
+    "subType": "temp",
+    "active": false,
+    "level": 0,
+    "duration": {
+      "value": "2",
+      "units": "round",
+      "start": 48,
+      "end": "turnStart"
+    },
+    "conditions": {
+      "value": [],
+      "custom": []
+    },
+    "hideFromToken": false,
+    "showInQuickbar": false
+  },
+  "effects": [],
+  "folder": null,
+  "flags": {
+    "core": {},
+    "exportSource": {
+      "world": "no-mods",
+      "system": "pf1",
+      "coreVersion": "11.315",
+      "systemVersion": "10.7"
+    }
+  },
+  "_stats": {
+    "systemId": "pf1",
+    "systemVersion": "10.7",
+    "coreVersion": "11.315",
+    "createdTime": 1725766957324,
+    "modifiedTime": 1727234771134,
+    "lastModifiedBy": "ofL9f7zs368Vmo62"
+  }
+}
