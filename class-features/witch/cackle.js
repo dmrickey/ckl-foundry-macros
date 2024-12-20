@@ -24,6 +24,11 @@ const PositionHelper = api.utils.PositionalHelper;
 const sceneTokens = me.scene.tokens.filter(t => t.id !== token.id);
 const tokensInRange = sceneTokens.filter(st => new PositionHelper(token, st).isWithinRange(0, range));
 
+if (!tokensInRange.length) {
+    ui.notifications.error(`No other tokens within '${range}' of the witch '${token.name}'.`);
+    return;
+}
+
 const updated = [];
 
 for (const t of tokensInRange) {
@@ -46,16 +51,22 @@ for (const t of tokensInRange) {
     }
 }
 
+let chatContent;
 if (updated.length) {
     const messages = [
         'Cackle updated:<hr/>',
-        ...updated.map(({name, buffs}) => `${name}: ${buffs.join(', ')}`).join('<br />'),
+        updated.map(({name, buffs}) => `${name}: ${buffs.join(', ')}`).join('<br />'),
     ];
 
-    const chatData = {
-        user: game.user._id,
-        speaker: ChatMessage.getSpeaker(),
-        content: messages.join('')
-    };
-    ChatMessage.create(chatData, {});
+    chatContent = messages.join('');
 }
+else {
+    chatContent = 'No targets in range have any hexes that can be extended.';
+}
+
+const chatData = {
+    user: game.user._id,
+    speaker: ChatMessage.getSpeaker(),
+    content: chatContent
+};
+ChatMessage.create(chatData, {});
