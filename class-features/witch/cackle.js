@@ -2,44 +2,39 @@
 // it cannot differentiate between which witch the buff originated from, so if there are multiple witches in the scene using hexes, a single cackle will extend any within range regardless of whether or not it was their hex
 // *it requires the GM because players cannot update NPCs to extend their buffs. In that case, this can be run as a regular macro by the GM by selecting the player's witch token and then using this macro.
 
-const buffs = ['agony', 'charm', 'evil eye', 'fortune', 'misfortune'];
+/// List of hex names -- these must exactly match the Buff's name
+const buffs = ['Agony', 'Charm', 'Evil Eye', 'Fortune', 'Misfortune'];
 const range = 30;
 
-const gridSizePx = canvas.scene.grid.size;
-function assessTokenSpace(t) {
-    const wr = t.document?.width ?? t.width;
-    const hr = t.document?.height ?? t.height;
-
-    const squares = [];
-
-    [...Array(wr).keys()].forEach((x) => {
-        [...Array(hr).keys()].forEach((y) => {
-            squares.push({ x: t.x + x * gridSizePx, y: t.y + y * gridSizePx });
-        });
-    });
-
-    return squares;
+const api = game.modules.get('ckl-roll-bonuses')?.api;
+if (!api) {
+    // requires Roll Bonuses to use its measuring api.
+    ui.notifications.error('This macro requires the mod "Roll Bonuses PF1"');
+    return;
 }
 
 const me = token;
-const meSquares = assessTokenSpace(me);
+if (!me) {
+    ui.notifications.error('Must select a token (i.e. the witch)');
+    return;
+}
 
-const tokensInRange = me.scene.tokens.filter((target) => {
-    const targetSquares = assessTokenSpace(target);
-    const rays = meSquares.flatMap((meSquare) => targetSquares.map((targetSquare) => new Ray({ x: meSquare.x, y: meSquare.y }, { x: targetSquare.x, y: targetSquare.y }))).map((ray) => ({ ray }));
-    const closest = Math.min(...canvas.grid.grid.measureDistances(rays, { gridSpaces: true }));
-    return closest <= range;
-});
+const PositionHelper = api.utils.PositionalHelper;
+
+const sceneTokens = me.scene.tokens.filter(t => t.id !== token.id);
+const tokensInRange = sceneTokens.filter(st => new PositionHelper(token, st).isWithinRange(0, range));
 
 const updated = [];
 
 for (const t of tokensInRange) {
-    const aes = t?.actor?.effects?.filter((ae) => buffs.includes(ae.label?.toLowerCase()));
+    const aes = buffs
+        .map((b) => t?.actor?.itemTypes.buff.getName(b)?.effect)
+        .filter(x => x?.active);
     for (const ae of aes) {
         const seconds = (ae.duration.seconds || (ae.duration.rounds * CONFIG.time.roundTime)) || 0;
         const data = {
             duration: {
-                seconds: seconds + 6,
+                seconds: seconds + CONFIG.time.roundTime,
                 rounds: null,
             },
         };
@@ -53,15 +48,14 @@ for (const t of tokensInRange) {
 
 if (updated.length) {
     const messages = [
-        'Cackle updated:',
-        '<br />',
-        ...updated.map(({name, buffs}) => `${name}: ${buffs.join(', ')}`),
+        'Cackle updated:<hr/>',
+        ...updated.map(({name, buffs}) => `${name}: ${buffs.join(', ')}`).join('<br />'),
     ];
 
     const chatData = {
         user: game.user._id,
         speaker: ChatMessage.getSpeaker(),
-        content: messages.join('<br />')
+        content: messages.join('')
     };
     ChatMessage.create(chatData, {});
 }
