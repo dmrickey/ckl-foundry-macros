@@ -1,8 +1,10 @@
-// Requires Roll Bonuses https://foundryvtt.com/packages/ckl-roll-bonuses
+// Requires Roll Bonuses for range calculation (correctly accounts for token width and height) https://foundryvtt.com/packages/ckl-roll-bonuses
 
-// will increase the duration of the defined buffs by 30 seconds. As written, it's intended for a GM to use in an NPC witch's cackle ability
+// will increase the duration of the defined buffs by 1 game round.
+// requires the GM to select the witch token and then use the macro (it must be the GM as it makes updates to anyone in range and players don't have access to modify NPCs)
+
 // it cannot differentiate between which witch the buff originated from, so if there are multiple witches in the scene using hexes, a single cackle will extend any within range regardless of whether or not it was their hex
-// *it requires the GM because players cannot update NPCs to extend their buffs. In that case, this can be run as a regular macro by the GM by selecting the player's witch token and then using this macro.
+// - if multiple witches are in use and the buffs need to be differentiated by source, you'll have to modify below to swap out `buffs` to instead use a boolean flag or something and make sure there are unique boolean flags from each witch. Then when looking for what buffs to update, you'll need to find them by that flag.
 
 /// List of hex names -- these must exactly match the Buff's name
 const buffs = ['Agony', 'Charm', 'Evil Eye', 'Fortune', 'Misfortune'];
