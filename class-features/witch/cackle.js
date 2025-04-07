@@ -1,3 +1,5 @@
+// Requires Roll Bonuses https://foundryvtt.com/packages/ckl-roll-bonuses
+
 // will increase the duration of the defined buffs by 30 seconds. As written, it's intended for a GM to use in an NPC witch's cackle ability
 // it cannot differentiate between which witch the buff originated from, so if there are multiple witches in the scene using hexes, a single cackle will extend any within range regardless of whether or not it was their hex
 // *it requires the GM because players cannot update NPCs to extend their buffs. In that case, this can be run as a regular macro by the GM by selecting the player's witch token and then using this macro.
