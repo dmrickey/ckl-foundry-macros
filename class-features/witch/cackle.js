@@ -1,3 +1,5 @@
+// PF1 11.x and Foundry v13
+
 // Requires Roll Bonuses for range calculation (correctly accounts for token width and height) https://foundryvtt.com/packages/ckl-roll-bonuses
 
 // will increase the duration of the defined buffs by 1 game round.
@@ -51,14 +53,14 @@ for (const t of tokensInRange) {
     }
 
     if (aes.length) {
-        updated.push({name: t.name, buffs: aes.map(ae => ae.label)});
+        updated.push({name: t.name, buffs: aes.map(ae => ae.name)});
     }
 }
 
 let chatContent;
 if (updated.length) {
     const messages = [
-        'Cackle updated:<hr/>',
+        'Cackle updated:<br/>',
         updated.map(({name, buffs}) => `${name}: ${buffs.join(', ')}`).join('<br />'),
     ];
 
